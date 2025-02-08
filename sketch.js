@@ -3,7 +3,7 @@ let currentLayer;
 let currentPollutant = 'PM2.5 (μg/m3)';
 let studentData = {};
 let airQualityData = [];
-let successRates = {};
+let successRateData = {}; // Store success rates
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
@@ -31,15 +31,14 @@ function loadCSV(callback) {
             airQualityData = lines.map(line => {
                 const [region, iso3, country, city, year, pm25, pm10, no2] = line.split(',');
                 return {
-                    country,
-                    iso3,
+                    country: country.trim(),
+                    iso3: iso3.trim(),
                     year: parseInt(year),
                     "PM2.5 (μg/m3)": parseFloat(pm25),
                     "PM10 (μg/m3)": parseFloat(pm10),
                     "NO2 (μg/m3)": parseFloat(no2)
                 };
             }).filter(item => item.iso3 && (!isNaN(item["PM2.5 (μg/m3)"]) || !isNaN(item["PM10 (μg/m3)"]) || !isNaN(item["NO2 (μg/m3)"])));
-            callback();
         });
 
     fetch('data/number-of-students.csv')
@@ -57,13 +56,19 @@ function loadCSV(callback) {
         .then(data => {
             const lines = data.split('\n').slice(1);
             lines.forEach(line => {
-                const [countryLabel, successRate, year] = line.split(',');
-                if (!successRates[countryLabel.trim()]) {
-                    successRates[countryLabel.trim()] = {};
+                const [country, successRate, date] = line.split(',');
+                if (!country || !successRate || !date) return;
+
+                const year = date.substring(0, 4); // Extract YYYY from "2015-01-01T00:00:00Z"
+                const dropoutRate = (1 - parseFloat(successRate)).toFixed(3);
+
+                if (!successRateData[country.trim()]) {
+                    successRateData[country.trim()] = {};
                 }
-                successRates[countryLabel.trim()][parseInt(year)] = parseFloat(successRate);
+                successRateData[country.trim()][year] = dropoutRate; // Store dropout per year
             });
-        });
+        })
+        .then(callback);
 }
 
 function updateMap(pollutant, year = document.getElementById('year').value) {
@@ -97,15 +102,14 @@ function updateMap(pollutant, year = document.getElementById('year').value) {
                 },
                 onEachFeature: function (feature, layer) {
                     layer.on('click', function () {
-                        const countryName = feature.properties.ADMIN;
+                        const countryName = feature.properties.ADMIN.trim();
                         const totalStudents = studentData[countryName] || 'Data not available';
-                        const successRate = successRates[countryName] && successRates[countryName][year] ? successRates[countryName][year] : null;
-                        const dropoutRate = successRate !== null ? ((1 - successRate) * 100).toFixed(2) + '%' : 'Data not available';
+                        const dropoutRate = successRateData[countryName]?.[year] ? `${(successRateData[countryName][year] * 100).toFixed(1)}%` : 'No data';
 
                         layer.bindPopup(`
                             <strong>Country:</strong> ${countryName}<br>
                             <strong>Students:</strong> ${totalStudents}<br>
-                            <strong>Dropout Rate:</strong> ${dropoutRate}
+                            <strong>Dropout Rate (${year}):</strong> ${dropoutRate}
                         `).openPopup();
                     });
                 }
