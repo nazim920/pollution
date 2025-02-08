@@ -20,21 +20,18 @@
             height: 100vh;
             box-sizing: border-box;
         }
-        .left-panel {
-            width: 40%;
+        .left-panel, .right-panel {
             background-color: #ffffff;
             padding: 20px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
             border-radius: 10px;
+            overflow-y: auto;
+        }
+        .left-panel {
+            width: 40%;
         }
         .right-panel {
             width: 55%;
-            background-color: #ffffff;
-            padding: 20px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            overflow-y: auto;
         }
         h1 {
             font-size: 24px;
@@ -59,10 +56,10 @@
         img {
             display: block;
             max-width: 100%;
-            max-height: 200px; /* Adjusted max-height */
+            max-height: 200px;
             margin: 15px auto;
             border-radius: 8px;
-            object-fit: contain; /* Ensure the whole image fits */
+            object-fit: contain;
         }
         .details {
             background-color: #eef7ff;
@@ -113,6 +110,12 @@
             align-items: center;
             gap: 10px;
         }
+        #yearSlider input[type="range"] {
+            width: 100px;
+        }
+        #yearValue {
+            color: white;
+        }
     </style>
     <script src="../p5.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -123,64 +126,80 @@
         <!-- Left Panel with Static Information -->
         <div class="left-panel">
             <h1>Interactive Air Quality Analysis</h1>
-            <h2>Date:</h2>
-            <p>January 23, 2025</p>
-
             <h2>Task:</h2>
-            <p>Developing an interactive visualization tool for air quality analysis.</p>
+            <p>Developing an interactive visualization tool to analyze air quality across regions and cities, focusing on key pollutants like PM2.5, PM10, and NO2.</p>
 
             <h2>Operations:</h2>
             <div class="details">
                 <ul>
-                    <li>Interactive Map Navigation: Hover over regions to see pollutant levels.</li>
-                    <li>Select specific pollutants for focused visualization.</li>
-                    <li>Zoom in to explore city-level data.</li>
-                    <li>Use a timeline slider to view historical trends.</li>
-                    <li>Download filtered datasets for further analysis.</li>
+                    <li>Visualize pollutant levels across different regions.</li>
+                    <li>Select pollutants to focus on specific data points.</li>
+                    <li>Explore city-level data using zoom.</li>
+                    <li>Examine historical trends with a timeline slider.</li>
+                    <li>Download datasets for in-depth analysis.</li>
                 </ul>
             </div>
 
             <h2>Details:</h2>
             <div class="details">
-                <h3>Data Needed:</h3>
-                <p>Air quality data by region and city (PM2.5, PM10, NO2).</p>
-                <p>GeoJSON data for country boundaries.</p>
+                <h3>Data Requirements:</h3>
+                <p>Regional air quality data (PM2.5, PM10, NO2) and GeoJSON for country boundaries.</p>
 
                 <h3>Algorithms:</h3>
                 <ul>
                     <li>Data preprocessing for pollutant mapping.</li>
-                    <li>Outlier detection for erroneous data.</li>
-                    <li>Interactive tooltip generation for user engagement.</li>
+                    <li>Outlier detection to ensure data accuracy.</li>
+                    <li>Interactive tooltips to enhance user experience.</li>
                 </ul>
 
                 <h3>Metrics:</h3>
                 <ul>
                     <li>Regional pollution averages.</li>
-                    <li>Normalized pollution levels by students density.</li>
+                    <li>Normalized pollution levels based on student density.</li>
                 </ul>
+
+                <h3>Features:</h3>
+                <ul>
+                    <li>Color-coded maps to represent PM2.5, PM10, NO2 levels.</li>
+                    <li>Trends over time with historical data visualization.</li>
+                    <li>Interactive tooltips to provide detailed pollutant information.</li>
+                </ul>
+
+ 
+
             </div>
         </div>
 
         <!-- Right Panel with Interactive Map -->
         <div class="right-panel">
-            <h2>Layout:</h2>
-            <p>A world map interface with interactive features:</p>
-            <ul>
-                <li>Regions color-coded based on PM2.5 levels.</li>
-                <li>Pollutant-specific toggling options.</li>
-                <li>Zoom-in feature for exploring cities/regions.</li>
-                <li>Tooltips with pollutant averages and contextual data.</li>
-            </ul>
-            
+            <div  class="details">
 
-            <h2>Focus:</h2>
-            <p>The tool highlights:</p>
+            <h2>What the Visualizations Show</h2>
+            <p>The visualizations display the concentration levels of key air pollutants (PM2.5, PM10, NO2) across different regions and cities. Users can explore how pollution levels vary over time and across geographic locations, with color-coded maps and tooltips providing additional contextual data.</p>
+
+            <h2>Who the Visualization is For</h2>
+            <p>This tool is designed for students studying environmental science, researchers, policymakers, educators, and health officials who are concerned about air quality and its impact on public health and the environment.</p>
+
+            <h2>Why It Matters</h2>
+            <p>Air pollution has serious health consequences, especially for vulnerable populations such as children, the elderly, and people with respiratory conditions. By providing an interactive and accessible platform, this visualization helps raise awareness and encourages actions to mitigate pollution levels.</p>
+
+            <h2>How to Read the Visualization</h2>
+            <p>Each region on the map is color-coded based on the level of a specific pollutant. Darker colors indicate higher pollution levels. You can select pollutants for comparison, zoom in on specific cities, and explore trends over time using the interactive timeline. Hovering over a region will display detailed pollutant levels and additional contextual data.</p>
+            
             <ul>
-                <li>Multi-pollutant visualization for detailed comparisons.</li>
-                <li>Historical trends by region or globally.</li>
-                <li>Health impact context for vulnerable studdents.</li>
+                <li>Hover over regions to view pollutant levels.</li>
+                <li>Toggle between different pollutants for comparison.</li>
+                <li>Zoom in to explore data at the city level.</li>
+                <li>Adjust the timeline slider to view historical data trends.</li>
             </ul>
-           
+            <h2>Key Highlights</h2>
+            <p>Focus areas include:</p>
+            <ul>
+                <li>Multi-pollutant visualization for comprehensive analysis.</li>
+                <li>Historical trends analysis for understanding pollution changes over time.</li>
+                <li>Health impact insights to guide public health policies and initiatives.</li>
+            </ul>
+        </div> 
 
             <!-- Interactive Map with Year Slider and Controls -->
             <div id="map-container">
@@ -197,6 +216,13 @@
                     <button class="btn" onclick="updateMap('PM10 (μg/m3)')">PM10</button>
                     <button class="btn" onclick="updateMap('NO2 (μg/m3)')">NO2</button>
                 </div>
+           
+                 </div> 
+
+            <p>Map Focus</p>
+            <div id="map-controls">
+                <span>+ </span><span>−</span>
+                <p>Leaflet | © OpenStreetMap contributors</p>
             </div>
 
             <script src="sketch.js"></script>
