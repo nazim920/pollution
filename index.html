@@ -3,20 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Air Quality Visualization</title>
+    <title>Interactive Air Quality Analysis</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
             margin: 0;
-            background-color: #121212;
-            color: white;
+            padding: 0;
+            background-color: #eef7ff;
+        }
+        .container {
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .left-panel {
+            width: 40%;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            border-radius: 10px;
+        }
+        .right-panel {
+            width: 55%;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow-y: auto;
+        }
+        h1 {
+            font-size: 24px;
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 20px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        p {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+        }
+        img {
+            display: block;
+            max-width: 100%;
+            max-height: 200px; /* Adjusted max-height */
+            margin: 15px auto;
+            border-radius: 8px;
+            object-fit: contain; /* Ensure the whole image fits */
+        }
+        .details {
+            background-color: #eef7ff;
+            padding: 15px;
+            border-left: 5px solid #2196F3;
+            margin-bottom: 20px;
+        }
+        #map-container {
+            position: relative;
+            width: 100%;
             height: 100vh;
         }
         #map {
             width: 100%;
-            height: 100vh;
+            height: 100%;
         }
         #controls {
             position: absolute;
@@ -58,17 +119,88 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
 </head>
 <body>
-    <div id="map"></div>
-    <div id="yearSlider">
-        <label for="year">Year:</label>
-        <input type="range" id="year" min="2015" max="2020" value="2015" step="1">
-        <span id="yearValue">2015</span>
+    <div class="container">
+        <!-- Left Panel with Static Information -->
+        <div class="left-panel">
+            <h1>Interactive Air Quality Analysis</h1>
+            <h2>Date:</h2>
+            <p>January 23, 2025</p>
+
+            <h2>Task:</h2>
+            <p>Developing an interactive visualization tool for air quality analysis.</p>
+
+            <h2>Operations:</h2>
+            <div class="details">
+                <ul>
+                    <li>Interactive Map Navigation: Hover over regions to see pollutant levels.</li>
+                    <li>Select specific pollutants for focused visualization.</li>
+                    <li>Zoom in to explore city-level data.</li>
+                    <li>Use a timeline slider to view historical trends.</li>
+                    <li>Download filtered datasets for further analysis.</li>
+                </ul>
+            </div>
+
+            <h2>Details:</h2>
+            <div class="details">
+                <h3>Data Needed:</h3>
+                <p>Air quality data by region and city (PM2.5, PM10, NO2).</p>
+                <p>GeoJSON data for country boundaries.</p>
+
+                <h3>Algorithms:</h3>
+                <ul>
+                    <li>Data preprocessing for pollutant mapping.</li>
+                    <li>Outlier detection for erroneous data.</li>
+                    <li>Interactive tooltip generation for user engagement.</li>
+                </ul>
+
+                <h3>Metrics:</h3>
+                <ul>
+                    <li>Regional pollution averages.</li>
+                    <li>Normalized pollution levels by students density.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Panel with Interactive Map -->
+        <div class="right-panel">
+            <h2>Layout:</h2>
+            <p>A world map interface with interactive features:</p>
+            <ul>
+                <li>Regions color-coded based on PM2.5 levels.</li>
+                <li>Pollutant-specific toggling options.</li>
+                <li>Zoom-in feature for exploring cities/regions.</li>
+                <li>Tooltips with pollutant averages and contextual data.</li>
+            </ul>
+            <img src="europemap.png" alt="Map Layout">
+
+            <h2>Focus:</h2>
+            <p>The tool highlights:</p>
+            <ul>
+                <li>Multi-pollutant visualization for detailed comparisons.</li>
+                <li>Historical trends by region or globally.</li>
+                <li>Health impact context for vulnerable studdents.</li>
+            </ul>
+            <img src="UKMAPFORFOCUS.png" alt="Map Focus">
+
+            <!-- Interactive Map with Year Slider and Controls -->
+            <div id="map-container">
+                <div id="map"></div>
+
+                <div id="yearSlider">
+                    <label for="year">Year:</label>
+                    <input type="range" id="year" min="2015" max="2020" value="2015" step="1">
+                    <span id="yearValue">2015</span>
+                </div>
+
+                <div id="controls">
+                    <button class="btn" onclick="updateMap('PM2.5 (μg/m3)')">PM2.5</button>
+                    <button class="btn" onclick="updateMap('PM10 (μg/m3)')">PM10</button>
+                    <button class="btn" onclick="updateMap('NO2 (μg/m3)')">NO2</button>
+                </div>
+            </div>
+
+            <script src="sketch.js"></script>
+        </div>
     </div>
-    <div id="controls">
-        <button class="btn" onclick="updateMap('PM2.5 (μg/m3)')">PM2.5</button>
-        <button class="btn" onclick="updateMap('PM10 (μg/m3)')">PM10</button>
-        <button class="btn" onclick="updateMap('NO2 (μg/m3)')">NO2</button>
-    </div>
-    <script src="sketch.js"></script>
 </body>
 </html>
