@@ -3,7 +3,7 @@ let currentLayer;
 let currentPollutant = 'PM2.5 (μg/m3)';
 let studentData = {};
 let airQualityData = [];
-let successRateData = {}; // Store success rates
+let dropoutRateData = {}; // Store dropout rates by country & year
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
@@ -62,10 +62,10 @@ function loadCSV(callback) {
                 const year = date.substring(0, 4); // Extract YYYY from "2015-01-01T00:00:00Z"
                 const dropoutRate = (1 - parseFloat(successRate)).toFixed(3);
 
-                if (!successRateData[country.trim()]) {
-                    successRateData[country.trim()] = {};
+                if (!dropoutRateData[country.trim()]) {
+                    dropoutRateData[country.trim()] = {};
                 }
-                successRateData[country.trim()][year] = dropoutRate; // Store dropout per year
+                dropoutRateData[country.trim()][year] = dropoutRate; // Store dropout per year
             });
         })
         .then(callback);
@@ -104,7 +104,7 @@ function updateMap(pollutant, year = document.getElementById('year').value) {
                     layer.on('click', function () {
                         const countryName = feature.properties.ADMIN.trim();
                         const totalStudents = studentData[countryName] || 'Data not available';
-                        const dropoutRate = successRateData[countryName]?.[year] ? `${(successRateData[countryName][year] * 100).toFixed(1)}%` : 'No data';
+                        const dropoutRate = dropoutRateData[countryName]?.[year] ? `${(dropoutRateData[countryName][year] * 100).toFixed(1)}%` : 'No data';
 
                         layer.bindPopup(`
                             <strong>Country:</strong> ${countryName}<br>
