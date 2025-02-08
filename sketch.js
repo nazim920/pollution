@@ -60,7 +60,7 @@ function loadCSV(callback) {
                 if (!country || !successRate || !date) return;
 
                 const year = date.substring(0, 4); // Extract YYYY from "2015-01-01T00:00:00Z"
-                const dropoutRate = (1 - parseFloat(successRate)).toFixed(3);
+                const dropoutRate = ((1 - parseFloat(successRate)) * 100).toFixed(1); // Convert to percentage
 
                 if (!dropoutRateData[country.trim()]) {
                     dropoutRateData[country.trim()] = {};
@@ -104,7 +104,7 @@ function updateMap(pollutant, year = document.getElementById('year').value) {
                     layer.on('click', function () {
                         const countryName = feature.properties.ADMIN.trim();
                         const totalStudents = studentData[countryName] || 'Data not available';
-                        const dropoutRate = dropoutRateData[countryName]?.[year] ? `${(dropoutRateData[countryName][year] * 100).toFixed(1)}%` : 'No data';
+                        const dropoutRate = dropoutRateData[countryName]?.[year] ? `${dropoutRateData[countryName][year]}%` : 'No data available';
 
                         layer.bindPopup(`
                             <strong>Country:</strong> ${countryName}<br>
