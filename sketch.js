@@ -3,6 +3,7 @@ let currentLayer;
 let currentPollutant = 'PM2.5 (μg/m3)';
 let studentData = {};
 let airQualityData = [];
+let dropoutRateData = {}; // Store dropout rates by country & year
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
@@ -30,15 +31,14 @@ function loadCSV(callback) {
             airQualityData = lines.map(line => {
                 const [region, iso3, country, city, year, pm25, pm10, no2] = line.split(',');
                 return {
-                    country,
-                    iso3,
+                    country: country.trim(),
+                    iso3: iso3.trim(),
                     year: parseInt(year),
                     "PM2.5 (μg/m3)": parseFloat(pm25),
                     "PM10 (μg/m3)": parseFloat(pm10),
                     "NO2 (μg/m3)": parseFloat(no2)
                 };
             }).filter(item => item.iso3 && (!isNaN(item["PM2.5 (μg/m3)"]) || !isNaN(item["PM10 (μg/m3)"]) || !isNaN(item["NO2 (μg/m3)"])));
-            callback();
         });
 
     fetch('data/number-of-students.csv')
@@ -50,6 +50,25 @@ function loadCSV(callback) {
                 studentData[countryLabel.trim()] = parseInt(totalStudents);
             });
         });
+
+    fetch('data/successrate.csv')
+        .then(response => response.text())
+        .then(data => {
+            const lines = data.split('\n').slice(1);
+            lines.forEach(line => {
+                const [country, successRate, date] = line.split(',');
+                if (!country || !successRate || !date) return;
+
+                const year = date.substring(0, 4); // Extract YYYY from "2015-01-01T00:00:00Z"
+                const dropoutRate = (1 - parseFloat(successRate)).toFixed(3);
+
+                if (!dropoutRateData[country.trim()]) {
+                    dropoutRateData[country.trim()] = {};
+                }
+                dropoutRateData[country.trim()][year] = dropoutRate; // Store dropout per year
+            });
+        })
+        .then(callback);
 }
 
 function updateMap(pollutant, year = document.getElementById('year').value) {
@@ -83,27 +102,14 @@ function updateMap(pollutant, year = document.getElementById('year').value) {
                 },
                 onEachFeature: function (feature, layer) {
                     layer.on('click', function () {
-                        const countryName = feature.properties.ADMIN;
+                        const countryName = feature.properties.ADMIN.trim();
                         const totalStudents = studentData[countryName] || 'Data not available';
-                        const countryData = airQualityData.filter(item => item.iso3 === feature.properties.ISO_A3);
-
-                        let pollutionChange = "No data";
-                        if (countryData.length > 1) {
-                            const firstYear = countryData[0].year;
-                            const lastYear = countryData[countryData.length - 1].year;
-                            const firstVal = countryData[0][pollutant];
-                            const lastVal = countryData[countryData.length - 1][pollutant];
-                            
-                            if (!isNaN(firstVal) && !isNaN(lastVal)) {
-                                const change = (((lastVal - firstVal) / firstVal) * 100).toFixed(2);
-                                pollutionChange = `Change (${firstYear} - ${lastYear}): ${change}%`;
-                            }
-                        }
+                        const dropoutRate = dropoutRateData[countryName]?.[year] ? `${(dropoutRateData[countryName][year] * 100).toFixed(1)}%` : 'No data';
 
                         layer.bindPopup(`
                             <strong>Country:</strong> ${countryName}<br>
                             <strong>Students:</strong> ${totalStudents}<br>
-                            <strong>Pollution Change:</strong> ${pollutionChange}
+                            <strong>Dropout Rate (${year}):</strong> ${dropoutRate}
                         `).openPopup();
                     });
                 }
