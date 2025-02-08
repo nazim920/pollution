@@ -3,6 +3,7 @@ let currentLayer;
 let currentPollutant = 'PM2.5 (μg/m3)';
 let studentData = {};
 let airQualityData = [];
+let successRates = {};
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
@@ -50,6 +51,19 @@ function loadCSV(callback) {
                 studentData[countryLabel.trim()] = parseInt(totalStudents);
             });
         });
+
+    fetch('data/successrate.csv')
+        .then(response => response.text())
+        .then(data => {
+            const lines = data.split('\n').slice(1);
+            lines.forEach(line => {
+                const [countryLabel, successRate, year] = line.split(',');
+                if (!successRates[countryLabel.trim()]) {
+                    successRates[countryLabel.trim()] = {};
+                }
+                successRates[countryLabel.trim()][parseInt(year)] = parseFloat(successRate);
+            });
+        });
 }
 
 function updateMap(pollutant, year = document.getElementById('year').value) {
@@ -85,25 +99,13 @@ function updateMap(pollutant, year = document.getElementById('year').value) {
                     layer.on('click', function () {
                         const countryName = feature.properties.ADMIN;
                         const totalStudents = studentData[countryName] || 'Data not available';
-                        const countryData = airQualityData.filter(item => item.iso3 === feature.properties.ISO_A3);
-
-                        let pollutionChange = "No data";
-                        if (countryData.length > 1) {
-                            const firstYear = countryData[0].year;
-                            const lastYear = countryData[countryData.length - 1].year;
-                            const firstVal = countryData[0][pollutant];
-                            const lastVal = countryData[countryData.length - 1][pollutant];
-                            
-                            if (!isNaN(firstVal) && !isNaN(lastVal)) {
-                                const change = (((lastVal - firstVal) / firstVal) * 100).toFixed(2);
-                                pollutionChange = `Change (${firstYear} - ${lastYear}): ${change}%`;
-                            }
-                        }
+                        const successRate = successRates[countryName] && successRates[countryName][year] ? successRates[countryName][year] : null;
+                        const dropoutRate = successRate !== null ? ((1 - successRate) * 100).toFixed(2) + '%' : 'Data not available';
 
                         layer.bindPopup(`
                             <strong>Country:</strong> ${countryName}<br>
                             <strong>Students:</strong> ${totalStudents}<br>
-                            <strong>Pollution Change:</strong> ${pollutionChange}
+                            <strong>Dropout Rate:</strong> ${dropoutRate}
                         `).openPopup();
                     });
                 }
