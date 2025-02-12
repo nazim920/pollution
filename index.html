@@ -1,232 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Air Quality Analysis</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #eef7ff;
-        }
-        .container {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 20px;
-            height: 100vh;
-            box-sizing: border-box;
-        }
-        .left-panel, .right-panel {
-            background-color: #ffffff;
-            padding: 20px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            overflow-y: auto;
-        }
-        .left-panel {
-            width: 40%;
-        }
-        .right-panel {
-            width: 55%;
-        }
-        h1 {
-            font-size: 24px;
-            color: #2196F3;
-            margin-bottom: 10px;
-        }
-        h2 {
-            font-size: 20px;
-            color: #555;
-            margin-bottom: 10px;
-        }
-        h3 {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        p {
-            font-size: 14px;
-            color: #333;
-            line-height: 1.6;
-        }
-        img {
-            display: block;
-            max-width: 100%;
-            max-height: 200px;
-            margin: 15px auto;
-            border-radius: 8px;
-            object-fit: contain;
-        }
-        .details {
-            background-color: #eef7ff;
-            padding: 15px;
-            border-left: 5px solid #2196F3;
-            margin-bottom: 20px;
-        }
-        #map-container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-        }
-        #map {
-            width: 100%;
-            height: 100%;
-        }
-        #controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            display: flex;
-            gap: 10px;
-        }
-        .btn {
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .btn:hover {
-            background-color: #1976D2;
-        }
-        #yearSlider {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        #yearSlider input[type="range"] {
-            width: 100px;
-        }
-        #yearValue {
-            color: white;
-        }
-    </style>
-    <script src="../p5.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Air Quality, Mental Well-being and Happiness</title>
+  <style>
+    /* Global colors & typography */
+    :root {
+      --bg-color: #0D170B;
+      --panel-bg: #112218;
+      --accent: #A6BB74;
+      --accent-hover: #8CA066;
+      --text-color: #f0f0f0;
+      --font-family: Arial, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-family);
+    }
+    header {
+      background: var(--panel-bg);
+      text-align: center;
+      padding: 20px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: var(--accent);
+    }
+    /* Container uses flex to create three columns */
+    .container {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+      box-sizing: border-box;
+      height: calc(100vh - 80px);
+    }
+    /* Left panel: Generic text */
+    .left-panel {
+      width: 25%;
+      background: var(--panel-bg);
+      padding: 20px;
+      border-radius: 10px;
+      overflow-y: auto;
+    }
+    .left-panel h2 {
+      margin-top: 0;
+      color: var(--accent);
+      font-size: 1.2rem;
+    }
+    .left-panel p {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    /* Center panel: Globe */
+    .center-panel {
+      width: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #globe {
+      width: 100%;
+      height: 500px;
+      background: #111;
+      border: 2px solid var(--panel-bg);
+      border-radius: 10px;
+    }
+    /* Right panel: Controls & Country Info */
+    .right-panel {
+      width: 25%;
+      background: var(--panel-bg);
+      padding: 20px;
+      border-radius: 10px;
+      overflow-y: auto;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .controls .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 3px;
+      cursor: pointer;
+      margin: 5px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    .controls .btn:hover {
+      background: var(--accent-hover);
+    }
+    #yearSlider {
+      margin-top: 10px;
+      font-size: 1rem;
+      display: inline-block;
+    }
+    #yearSlider label {
+      margin-right: 10px;
+    }
+    #yearSlider input[type="range"] {
+      vertical-align: middle;
+    }
+    #yearSlider span {
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    /* Country Info box styling */
+    #countryInfo {
+      background: #222;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
+    #countryInfo h2 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+  </style>
+  <!-- D3 and related libraries -->
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson@3"></script>
+  <script src="https://d3js.org/d3-geo.v1.min.js"></script>
+  <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Left Panel with Static Information -->
-        <div class="left-panel">
-            <h1>Interactive Air Quality Analysis</h1>
-            <h2>Task:</h2>
-            <p>Developing an interactive visualization tool to analyze air quality across regions and cities, focusing on key pollutants like PM2.5, PM10, and NO2.</p>
-
-            <h2>Operations:</h2>
-            <div class="details">
-                <ul>
-                    <li>Visualize pollutant levels across different regions.</li>
-                    <li>Select pollutants to focus on specific data points.</li>
-                    <li>Explore city-level data using zoom.</li>
-                    <li>Examine historical trends with a timeline slider.</li>
-                    <li>Download datasets for in-depth analysis.</li>
-                </ul>
-            </div>
-
-            <h2>Details:</h2>
-            <div class="details">
-                <h3>Data Requirements:</h3>
-                <p>Regional air quality data (PM2.5, PM10, NO2) and GeoJSON for country boundaries.</p>
-
-                <h3>Algorithms:</h3>
-                <ul>
-                    <li>Data preprocessing for pollutant mapping.</li>
-                    <li>Outlier detection to ensure data accuracy.</li>
-                    <li>Interactive tooltips to enhance user experience.</li>
-                </ul>
-
-                <h3>Metrics:</h3>
-                <ul>
-                    <li>Regional pollution averages.</li>
-                    <li>Normalized pollution levels based on student density.</li>
-                </ul>
-
-                <h3>Features:</h3>
-                <ul>
-                    <li>Color-coded maps to represent PM2.5, PM10, NO2 levels.</li>
-                    <li>Trends over time with historical data visualization.</li>
-                    <li>Interactive tooltips to provide detailed pollutant information.</li>
-                </ul>
-
- 
-
-            </div>
-        </div>
-
-        <!-- Right Panel with Interactive Map -->
-        <div class="right-panel">
-            <div  class="details">
-
-            <h2>What the Visualizations Show</h2>
-            <p>The visualizations display the concentration levels of key air pollutants (PM2.5, PM10, NO2) across different regions and cities. Users can explore how pollution levels vary over time and across geographic locations, with color-coded maps and tooltips providing additional contextual data.</p>
-
-            <h2>Who the Visualization is For</h2>
-            <p>This tool is designed for students studying environmental science, researchers, policymakers, educators, and health officials who are concerned about air quality and its impact on public health and the environment.</p>
-
-            <h2>Why It Matters</h2>
-            <p>Air pollution has serious health consequences, especially for vulnerable populations such as children, the elderly, and people with respiratory conditions. By providing an interactive and accessible platform, this visualization helps raise awareness and encourages actions to mitigate pollution levels.</p>
-
-            <h2>How to Read the Visualization</h2>
-            <p>Each region on the map is color-coded based on the level of a specific pollutant. Darker colors indicate higher pollution levels. You can select pollutants for comparison, zoom in on specific cities, and explore trends over time using the interactive timeline. Hovering over a region will display detailed pollutant levels and additional contextual data.</p>
-            
-            <ul>
-                <li>Hover over regions to view pollutant levels.</li>
-                <li>Toggle between different pollutants for comparison.</li>
-                <li>Zoom in to explore data at the city level.</li>
-                <li>Adjust the timeline slider to view historical data trends.</li>
-            </ul>
-            <h2>Key Highlights</h2>
-            <p>Focus areas include:</p>
-            <ul>
-                <li>Multi-pollutant visualization for comprehensive analysis.</li>
-                <li>Historical trends analysis for understanding pollution changes over time.</li>
-                <li>Health impact insights to guide public health policies and initiatives.</li>
-            </ul>
-        </div> 
-
-            <!-- Interactive Map with Year Slider and Controls -->
-            <div id="map-container">
-                <div id="map"></div>
-
-                <div id="yearSlider">
-                    <label for="year">Year:</label>
-                    <input type="range" id="year" min="2015" max="2020" value="2015" step="1">
-                    <span id="yearValue">2015</span>
-                </div>
-
-                <div id="controls">
-                    <button class="btn" onclick="updateMap('PM2.5 (μg/m3)')">PM2.5</button>
-                    <button class="btn" onclick="updateMap('PM10 (μg/m3)')">PM10</button>
-                    <button class="btn" onclick="updateMap('NO2 (μg/m3)')">NO2</button>
-                </div>
-           
-                 </div> 
-
-            <p>Map Focus</p>
-            <div id="map-controls">
-                <span>+ </span><span>−</span>
-                <p>Leaflet | © OpenStreetMap contributors</p>
-            </div>
-
-            <script src="sketch.js"></script>
-        </div>
+  <header>
+    <h1>Air Quality, Mental Well-being and Happiness</h1>
+  </header>
+  <div class="container">
+    <!-- Left Panel: Generic Explanatory Text -->
+    <div class="left-panel">
+      <h2>What</h2>
+      <p>
+        We care to identify the correlation between mental well-being and happiness in different countries worldwide, considering changes in air quality rates over time.
+      </p>
+      <h2>Who</h2>
+      <p>
+        To people in general, but specifically to students coming from diverse parts of the world.
+      </p>
+      <h2>Why</h2>
+      <p>
+        Investing in reducing air pollution promotes mental well-being, showing that caring for the environment benefits us beyond money.
+      </p>
+      <h2>Short Description</h2>
+      <p>
+        The visualization displays a globe featuring countries and their corresponding air quality, mental well-being, and happiness rates spanning from 2010 to 2019. Circular-stacked bars aggregate these rates and rank countries accordingly, with a legend available for filtering indicators. Users can inspect countries by hovering over the globe and analyze correlations using the bivariate choropleth map, while a slider adjusts the displayed year.
+      </p>
+      <h2>Additional Notes</h2>
+      <p>
+        Dataset links are provided for air quality, mental health, and world happiness. The happiness and mental well-being scores are calculated by averaging over various factors (refer to the data). Each variable is normalized to have values between 0 and 1.
+      </p>
     </div>
+    <!-- Center Panel: Globe -->
+    <div class="center-panel">
+      <div id="globe"></div>
+    </div>
+    <!-- Right Panel: Controls and Country Info -->
+    <div class="right-panel">
+      <div class="controls">
+        <button class="btn" onclick="updateGlobe('PM2.5')">PM2.5</button>
+        <button class="btn" onclick="updateGlobe('PM10')">PM10</button>
+        <button class="btn" onclick="updateGlobe('NO2')">NO2</button>
+        <div id="yearSlider">
+          <label for="year">Year:</label>
+          <input type="range" id="year" min="2015" max="2020" value="2015" step="1">
+          <span id="yearValue">2015</span>
+        </div>
+      </div>
+      <div id="countryInfo">
+        <h2>Country Information</h2>
+        <p>Click on a country on the globe to view details here.</p>
+      </div>
+    </div>
+  </div>
+  <script src="sketch.js"></script>
 </body>
 </html>
