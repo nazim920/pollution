@@ -167,6 +167,8 @@ function updateGlobe(pollutant) {
         previousPollutant = pollutant;
         currentPollutant = pollutant;
         currentSliderYear = sliderYear;
+        updateLegend(pollutant);
+
         console.log("Recalculated colors after pollutant change:", coloredCountries);
         return;
     }
