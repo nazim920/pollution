@@ -133,23 +133,30 @@
       vertical-align: middle;
     }
     /* Country Info Box */
-    #countryInfo {
-      background: #000;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 20px;
-      font-size: 0.7rem;
-      border: var(--border-style);
-      box-shadow: 2px 2px 0 var(--accent);
-    }
-    #countryInfo h2 {
-      margin-top: 0;
-      color: var(--accent);
-      font-size: 0.8rem;
-    }
-    #countryInfo p {
-      margin: 5px 0;
-    }
+    /* Country Info Box */
+#countryInfo {
+  background: #000;
+  padding: 25px;         /* increased padding */
+  border-radius: 8px;
+  margin-top: 20px;
+  font-size: 0.7rem;
+  border: var(--border-style);
+  box-shadow: 2px 2px 0 var(--accent);
+  line-height: 1.4;      /* improved readability */
+}
+
+#countryInfo h2 {
+  margin-top: 0;
+  color: var(--accent);
+  font-size: 0.9rem;     /* slightly larger title */
+  text-shadow: 1px 1px 2px #000;  /* subtle text shadow */
+}
+
+#countryInfo p {
+  margin: 10px 0;        /* more vertical space between paragraphs */
+  text-shadow: 1px 1px 2px #000;
+}
+
     /* Pixel-style animation for header text */
     @keyframes pixelGlitch {
       0% { text-shadow: 2px 2px 0 var(--accent), -2px -2px 0 var(--accent); }

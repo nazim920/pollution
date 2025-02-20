@@ -13,6 +13,7 @@ const width = 800, height = 600;
 // Additional datasets
 let studentData = [];   // from data/number-of-students.csv
 let successData = [];   // from data/successrate.csv
+let educationData = [];     // from data/education-index-by-country-2024.csv
 
 // Create the SVG canvas for the globe
 const svg = d3.select("#globe")
@@ -40,16 +41,20 @@ svg.call(d3.drag()
   })
 );
 
-// ─── LOAD THE EXTRA DATA (Number of Students & Success Rate) ─────
+// ─── LOAD THE EXTRA DATA (Students, Success Rate & Education Index) ─────
 Promise.all([
-  d3.csv("data/number-of-students.csv"),
-  d3.csv("data/successrate.csv")
-]).then(([studData, succData]) => {
-  studentData = studData;
-  successData = succData;
-  console.log("✅ Student Data Loaded:", studentData);
-  console.log("✅ Success Data Loaded:", successData);
-});
+    d3.csv("data/number-of-students.csv"),
+    d3.csv("data/successrate.csv"),
+    d3.csv("data/education-index-by-country-2024.csv")
+  ]).then(([studData, succData, eduData]) => {
+    studentData = studData;
+    successData = succData;
+    educationData = eduData;
+    console.log("✅ Student Data Loaded:", studentData);
+    console.log("✅ Success Data Loaded:", successData);
+    console.log("✅ Education Data Loaded:", educationData);
+  });
+  
 
 // ─── LOAD DATA AND DRAW THE GLOBE ────────────────────────────────
 Promise.all([
@@ -234,13 +239,17 @@ document.getElementById('year').addEventListener('input', () => {
 // ─── SHOW AND CLEAR COUNTRY INFORMATION ON HOVER ──────────────────
 function showCountryInfo(d) {
     const countryName = d.properties.name || "Unknown";
+    
+    // Lookup total students
     const studentEntry = studentData.find(x =>
       x.countryLabel.trim().toLowerCase() === countryName.trim().toLowerCase()
     );
     const totalStudents = studentEntry ? studentEntry.totalStudents : "No data";
     
+    // Get current year from slider
     const currentYear = document.getElementById('year').value;
     
+    // Lookup success rate and calculate dropout rate
     const successEntry = successData.find(x => {
         return x.paysLabel.trim().toLowerCase() === countryName.trim().toLowerCase() &&
                new Date(x.année).getFullYear() == currentYear;
@@ -253,10 +262,19 @@ function showCountryInfo(d) {
         dropoutRate = "No data";
     }
     
+    // Lookup Education Index for 2020 (using the relevant column)
+    // Adjust the column name if needed; here we use "EducationIndex_EducationIndex_2020"
+    const eduEntry = educationData.find(x =>
+      x.country.trim().toLowerCase() === countryName.trim().toLowerCase()
+    );
+    const educationIndex2020 = eduEntry ? eduEntry.EducationIndex_EducationIndex_2020 : "No data";
+    
+    // Update the info box in the right panel
     const infoDiv = document.getElementById('countryInfo');
     infoDiv.innerHTML = `<h2>${countryName}</h2>
                          <p><strong>Total Students:</strong> ${totalStudents}</p>
-                         <p><strong>Dropout Rate (${currentYear}):</strong> ${dropoutRate}</p>`;
+                         <p><strong>Dropout Rate (${currentYear}):</strong> ${dropoutRate}</p>
+                         <p><strong>Education Index (2020):</strong> ${educationIndex2020}</p>`;
 }
 
 function clearCountryInfo() {
