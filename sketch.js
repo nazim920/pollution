@@ -79,7 +79,7 @@ Promise.all([
 
     console.log("✅ Air Quality Data Loaded:", airQualityData);
 
-    // Draw the globe with countries and add an on-click event.
+    // Draw the globe with countries and add dynamic mouse events.
     globe.selectAll("path")
         .data(countries)
         .enter().append("path")
@@ -89,24 +89,23 @@ Promise.all([
         .attr("stroke-width", 0.5)
         .attr("data-iso3", d => {
             const iso3 = countryMapping[d.id] || "UNKNOWN";
-            if (iso3 !== "UNKNOWN") {
-                matchedCountries[iso3] = true;
-            }
+            if (iso3 !== "UNKNOWN") { matchedCountries[iso3] = true; }
             return iso3;
         })
         .on("mouseover", function (event, d) {
+            // Highlight the country and update the info box
             d3.select(this).attr("fill", "#4CAF50");
+            showCountryInfo(d);
         })
         .on("mouseout", function (event, d) {
+            // Reset fill color and clear the info box
             const iso3 = countryMapping[d.id];
             if (iso3 && coloredCountries[iso3]) {
                 d3.select(this).attr("fill", coloredCountries[iso3]);
             } else {
                 d3.select(this).attr("fill", "#222");
             }
-        })
-        .on("click", function(event, d) {
-            showCountryInfo(d);
+            clearCountryInfo();
         });
 
     // Initial update at default slider (2015)
@@ -149,9 +148,7 @@ function updateGlobe(pollutant) {
                 );
             } else {
                 const missingMeasurements = measurements.filter(item => item.year === null);
-                if (missingMeasurements.length > 0) {
-                    chosenMeasurement = missingMeasurements[0];
-                }
+                if (missingMeasurements.length > 0) { chosenMeasurement = missingMeasurements[0]; }
             }
             
             if (chosenMeasurement && (chosenMeasurement.year === null || chosenMeasurement.year <= sliderYear)) {
@@ -186,9 +183,7 @@ function updateGlobe(pollutant) {
                 );
             } else {
                 const missingMeasurements = measurements.filter(item => item.year === null);
-                if (missingMeasurements.length > 0) {
-                    chosenMeasurement = missingMeasurements[0];
-                }
+                if (missingMeasurements.length > 0) { chosenMeasurement = missingMeasurements[0]; }
             }
   
             if (chosenMeasurement && (chosenMeasurement.year === null || chosenMeasurement.year <= sliderYear)) {
@@ -214,9 +209,7 @@ function updateGlobe(pollutant) {
                 );
             } else {
                 const missingMeasurements = measurements.filter(item => item.year === null);
-                if (missingMeasurements.length > 0) {
-                    chosenMeasurement = missingMeasurements[0];
-                }
+                if (missingMeasurements.length > 0) { chosenMeasurement = missingMeasurements[0]; }
             }
   
             if (chosenMeasurement && (chosenMeasurement.year === null || chosenMeasurement.year <= sliderYear)) {
@@ -238,21 +231,16 @@ document.getElementById('year').addEventListener('input', () => {
     updateGlobe(currentPollutant);
 });
   
-// ─── SHOW COUNTRY INFORMATION ON CLICK ────────────────────────────
+// ─── SHOW AND CLEAR COUNTRY INFORMATION ON HOVER ──────────────────
 function showCountryInfo(d) {
-    // Get the country name from d.properties.name (if available)
     const countryName = d.properties.name || "Unknown";
-    
-    // Lookup the number of students (data/number-of-students.csv)
     const studentEntry = studentData.find(x =>
-      x.countryLabel.trim().toLowerCase() === countryName.trim().toLowerCase());
+      x.countryLabel.trim().toLowerCase() === countryName.trim().toLowerCase()
+    );
     const totalStudents = studentEntry ? studentEntry.totalStudents : "No data";
     
-    // Get the current year from the slider
     const currentYear = document.getElementById('year').value;
     
-    // Lookup the success rate entry (data/successrate.csv) for the country and current year.
-    // The CSV has a field "année" (an ISO date string) from which we extract the year.
     const successEntry = successData.find(x => {
         return x.paysLabel.trim().toLowerCase() === countryName.trim().toLowerCase() &&
                new Date(x.année).getFullYear() == currentYear;
@@ -265,9 +253,14 @@ function showCountryInfo(d) {
         dropoutRate = "No data";
     }
     
-    // Update the info box in the right panel (assumes a div with id="countryInfo" exists)
     const infoDiv = document.getElementById('countryInfo');
     infoDiv.innerHTML = `<h2>${countryName}</h2>
                          <p><strong>Total Students:</strong> ${totalStudents}</p>
                          <p><strong>Dropout Rate (${currentYear}):</strong> ${dropoutRate}</p>`;
+}
+
+function clearCountryInfo() {
+    const infoDiv = document.getElementById('countryInfo');
+    infoDiv.innerHTML = `<h2>Country Information</h2>
+                         <p>Hover over a country to view details.</p>`;
 }
