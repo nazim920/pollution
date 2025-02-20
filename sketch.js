@@ -282,3 +282,32 @@ function clearCountryInfo() {
     infoDiv.innerHTML = `<h2>Country Information</h2>
                          <p>Hover over a country to view details.</p>`;
 }
+
+function updateLegend(pollutant) {
+  const colorScales = {
+    "PM2.5": ['#800026', '#BD0026', '#E31A1C', '#FC4E2A', '#FD8D3C', '#FEB24C'],
+    "PM10": ['#0B3D91', '#2171B5', '#4292C6', '#6BAED6', '#9ECAE1', '#C6DBEF'],
+    "NO2": ['#00441B', '#006D2C', '#238B45', '#41AB5D', '#74C476', '#A1D99B']
+  };
+  // Fixed range thresholds (you can adjust these if needed)
+  const ranges = [100, 75, 50, 25, 10, 0];
+  
+  let legendHtml = "<h3 style='font-size:0.8rem; margin-bottom:10px;'>Legend (" + pollutant + ")</h3>";
+  // Loop through the color scale array for the current pollutant
+  for (let i = 0; i < colorScales[pollutant].length; i++) {
+    let label;
+    if (i === 0) {
+      label = "≥ " + ranges[i];
+    } else if (i === colorScales[pollutant].length - 1) {
+      label = "< " + ranges[i - 1];
+    } else {
+      label = ranges[i - 1] + " – " + ranges[i];
+    }
+    legendHtml += `<div style="display: flex; align-items: center; margin-bottom: 4px;">
+      <div style="width: 20px; height: 20px; background: ${colorScales[pollutant][i]}; margin-right: 5px;"></div>
+      <span style="font-size:0.7rem;">${label}</span>
+    </div>`;
+  }
+  
+  document.getElementById('legend').innerHTML = legendHtml;
+}
