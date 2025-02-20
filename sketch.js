@@ -167,8 +167,6 @@ function updateGlobe(pollutant) {
         previousPollutant = pollutant;
         currentPollutant = pollutant;
         currentSliderYear = sliderYear;
-        updateLegend(pollutant);
-
         console.log("Recalculated colors after pollutant change:", coloredCountries);
         return;
     }
@@ -229,6 +227,7 @@ function updateGlobe(pollutant) {
         });
     }
     currentSliderYear = sliderYear;
+    updateLegend(pollutant);
     console.log("Cumulative colored countries:", coloredCountries);
 }
   
