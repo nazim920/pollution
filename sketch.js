@@ -135,7 +135,8 @@ function getColor(value, pollutant) {
 // ─── CUMULATIVE UPDATE FUNCTION ─────────────────────────────────
 function updateGlobe(pollutant) {
     const sliderYear = +document.getElementById('year').value;
-    
+    updateLegend(pollutant);
+
     if (pollutant !== previousPollutant) {
         coloredCountries = {};
         globe.selectAll("path").attr("fill", function(d) {
